@@ -1,0 +1,140 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  MEMBER
+}
+
+enum Difficulty {
+  A1
+  A2
+  B1
+  B2
+  C1
+  C2
+}
+
+model User {
+  id              String           @id @unique @default(cuid())
+  email           String           @unique
+  username        String?
+  role            Role             @default(MEMBER)
+  articles        Article[]
+  likes           Like[]
+  comments        Comment[]
+  reports         Report[]
+  supportMessages SupportMessage[]
+  feedbacks       Feedback[]
+  vocabulary      Vocabulary[]
+
+  @@index([email])
+}
+
+model Article {
+  id         String     @id @default(uuid())
+  title      String
+  body       String     @db.VarChar(10000)
+  imageUrl   String?
+  difficulty Difficulty
+
+  createdAt DateTime @default(now())
+
+  user   User?   @relation(fields: [userId], references: [id])
+  userId String?
+
+  likes    Like[]
+  comments Comment[]
+  reports  Report[]
+
+  @@index([title])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  body      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  articleId String
+  likes     Like[]
+
+  @@index([articleId, userId])
+}
+
+model Like {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  articleId String
+  comment   Comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  commentId String?
+
+  @@unique([userId, articleId])
+  @@unique([userId, commentId])
+}
+
+model Report {
+  id        String  @id @default(cuid())
+  title     String
+  body      String
+  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  articleId String
+  user      User?   @relation(fields: [userId], references: [id])
+  userId    String?
+
+  createdAt DateTime @default(now())
+
+  @@index([articleId, userId])
+}
+
+model Feedback {
+  id       String  @id @default(cuid())
+  username String?
+  body     String
+  user     User?   @relation(fields: [userId], references: [id])
+  userId   String?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model SupportMessage {
+  id    String @id @default(cuid())
+  title String
+  body  String
+
+  createdAt DateTime @default(now())
+
+  user   User?   @relation(fields: [userId], references: [id])
+  userId String?
+}
+
+model Vocabulary {
+  id      String  @id @default(cuid())
+  word    String
+  meaning String?
+  link    String?
+
+  createdAt DateTime @default(now())
+
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String?
+}
