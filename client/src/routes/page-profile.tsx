@@ -24,7 +24,6 @@ const PageProfile = () => {
     enabled: !!user?.id,
   });
 
-  /* eslint-disable @typescript-eslint/no-unused-vars */
   const [
     state = {
       success: false,
@@ -51,6 +50,8 @@ const PageProfile = () => {
         await refetch();
         toast("Username has been updated.");
         queryClient.invalidateQueries({ queryKey: ["currentUser", user?.id] });
+        console.log(state, prevState);
+
         return { success: true };
       } catch (error) {
         console.error("Error updating username:", error);

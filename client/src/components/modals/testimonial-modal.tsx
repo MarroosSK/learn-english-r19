@@ -8,11 +8,12 @@ import { useActionState, useRef, useState } from "react";
 import { toast } from "sonner";
 import { getUser, makeTestimonial } from "../../api/api-calls";
 import { Loader2 } from "lucide-react";
+import { TestimonialI } from "@/types/types";
 
 const TestimonialModal = ({
   refetch,
 }: {
-  refetch: () => Promise<QueryObserverResult<Error>>;
+  refetch: () => Promise<QueryObserverResult<TestimonialI[], Error>>;
 }) => {
   const { isSignedIn, user } = useUser();
   const [open, setOpen] = useState(false);
@@ -42,6 +43,7 @@ const TestimonialModal = ({
 
         formRef?.current?.reset();
         queryClient.invalidateQueries({ queryKey: ["testimonials"] });
+        console.log(state, prevState);
         return {};
       } catch (error) {
         return { error: "Failed to send message. Please try again." };

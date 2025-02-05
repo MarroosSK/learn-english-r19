@@ -25,6 +25,7 @@ const SupportModal = () => {
 
         formRef?.current?.reset();
         setOpen(false);
+        console.log(state, prevState);
         return {};
       } catch (error) {
         return { error: "Failed to send message. Please try again." };

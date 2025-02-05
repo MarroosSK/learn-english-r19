@@ -54,7 +54,6 @@ const ArticleLikes = ({ articleId, initialLikes }: ArticleLikesI) => {
     }
   );
 
-  /* eslint-disable @typescript-eslint/no-unused-vars */
   const [state, formAction, isPending] = useActionState<unknown>(async () => {
     toggleOptimisticLikes(likes);
 
@@ -66,6 +65,8 @@ const ArticleLikes = ({ articleId, initialLikes }: ArticleLikesI) => {
     try {
       await switchLike(data);
       await refetch();
+      console.log(state);
+
       return {};
     } catch (error: unknown) {
       return error;

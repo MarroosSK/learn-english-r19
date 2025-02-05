@@ -72,6 +72,7 @@ const SearchContent = () => {
         toast(response);
         formRef?.current?.reset();
         setWordsList((prev) => [...prev, wordData.word as string]);
+        console.log(state, prevState);
         return {};
       } catch (error) {
         addOptimisticHeart(false);
