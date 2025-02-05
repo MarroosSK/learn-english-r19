@@ -1,8 +1,10 @@
 import { useState } from "react";
-import { X, EditIcon, Save, Trash } from "lucide-react";
+import { X, EditIcon, Save, Trash, Loader2 } from "lucide-react";
 import { editWord, handleDelete } from "@/api/api-calls";
 import { CurrentUserI, WordI } from "@/types/types";
 import { toast } from "sonner";
+import { useActionState } from "react";
+import { Link } from "react-router";
 
 const ProfileList = ({
   currentUser,
@@ -15,34 +17,43 @@ const ProfileList = ({
   const [editedMeaning, setEditedMeaning] = useState<string>("");
   const [optimisticMeaning, setOptimisticMeaning] = useState<string>("");
 
-  const handleEdit = async (wordId: string, word: string) => {
-    if (!editedMeaning.trim()) return;
+  const [state, formAction, isPending] = useActionState(
+    async (prevState: { error?: string }, formData: FormData) => {
+      const wordId = formData.get("wordId") as string;
+      const word = formData.get("word") as string;
+      const meaning = formData.get("meaning") as string;
 
-    const data: WordI = {
-      userId: currentUser.id,
-      word: word,
-      meaning: editedMeaning,
-    };
+      if (!meaning.trim()) return prevState;
 
-    // Store the current meaning to revert if needed
-    const previousMeaning =
-      currentUser.vocabulary.find((w) => w.id === wordId)?.meaning || "";
+      const data: WordI = {
+        userId: currentUser.id,
+        word,
+        meaning,
+      };
+      const previousMeaning =
+        currentUser.vocabulary.find((w) => w.id === wordId)?.meaning || "";
+      setOptimisticMeaning(meaning);
+      setEditMode(null);
 
-    setOptimisticMeaning(editedMeaning);
-    setEditMode(null);
+      // console.log("Submitting data: ", data);
 
-    try {
-      await editWord(data);
-      toast("Word updated!");
-      refetch();
-      return {};
-    } catch (error) {
-      // Rollback to previous meaning in case of error
-      toast.error("Failed to update word. Please try again.");
-      setOptimisticMeaning(previousMeaning);
-      return error;
-    }
-  };
+      try {
+        await editWord(data);
+        toast("Word updated!");
+        refetch();
+        console.log(state);
+
+        return {};
+      } catch (error) {
+        console.log(error);
+
+        toast.error("Failed to update word. Please try again.");
+        setOptimisticMeaning(previousMeaning);
+        return { error: "Update failed" };
+      }
+    },
+    {}
+  );
 
   const onDelete = async (wordId: string) => {
     try {
@@ -55,6 +66,12 @@ const ProfileList = ({
 
   return (
     <div>
+      <Link
+        to={"/vocabulary"}
+        className="bg-stone-800 p-2 rounded-md hover:bg-stone-300 text-white hover:text-stone-800 transition-all ease-in-out"
+      >
+        Add Words
+      </Link>
       <table className="min-w-full bg-white border border-gray-300 mt-4">
         <thead>
           <tr className="bg-gray-200">
@@ -70,12 +87,17 @@ const ProfileList = ({
                 <td className="border px-4 py-2">{word.word}</td>
                 <td className="border px-4 py-2">
                   {editMode === word.id ? (
-                    <input
-                      type="text"
-                      value={editedMeaning}
-                      onChange={(e) => setEditedMeaning(e.target.value)}
-                      className="w-full p-1 border border-gray-300"
-                    />
+                    <form action={formAction}>
+                      <input type="hidden" name="wordId" value={word.id} />
+                      <input type="hidden" name="word" value={word.word} />
+                      <input
+                        type="text"
+                        name="meaning"
+                        value={editedMeaning}
+                        onChange={(e) => setEditedMeaning(e.target.value)}
+                        className="w-full p-1 border border-gray-300"
+                      />
+                    </form>
                   ) : optimisticMeaning &&
                     optimisticMeaning === word.meaning ? (
                     optimisticMeaning
@@ -87,10 +109,16 @@ const ProfileList = ({
                   {editMode === word.id ? (
                     <>
                       <button
-                        onClick={() => handleEdit(word.id, word.word)}
+                        type="submit"
+                        formAction={formAction}
                         className="bg-green-500 hover:bg-green-300 text-white p-2 cursor-pointer"
+                        disabled={isPending}
                       >
-                        <Save size={16} />
+                        {isPending ? (
+                          <Loader2 className="animate-spin" size={16} />
+                        ) : (
+                          <Save size={16} />
+                        )}
                       </button>
 
                       <button

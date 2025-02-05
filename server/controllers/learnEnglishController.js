@@ -450,21 +450,23 @@ export const editWord = async (req, res) => {
       },
     });
 
-    if (wordExist) {
-      await db.vocabulary.update({
-        where: {
-          word: word,
-        },
-        data: {
-          meaning: meaning,
-        },
-      });
-      return res.status(200).json("Word added to the list!");
-    } else {
-      return res.status(200).json("Word is already on your list!");
+    if (!wordExist) {
+      return res.status(404).json({ error: "Word not found!" });
     }
+
+    await db.vocabulary.update({
+      where: {
+        id: wordExist.id,
+      },
+      data: {
+        meaning: meaning,
+      },
+    });
+
+    return res.status(200).json("Word updated successfully!");
   } catch (error) {
-    return res.status(500).json(error);
+    console.error("Error updating word:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
   }
 };
 

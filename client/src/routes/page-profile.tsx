@@ -80,8 +80,7 @@ const PageProfile = () => {
               ) : (
                 <>
                   <h2 className="text-stone-500 text-2xl font-semibold">
-                    Welcome,{" "}
-                    {isPending ? currentUser?.username : optimisticUsername}
+                    Welcome, {currentUser?.username}
                   </h2>
                   <p className="text-stone-800 font-bold">
                     {currentUser?.role}
@@ -96,6 +95,7 @@ const PageProfile = () => {
                       className="w-1/2"
                       type="text"
                       name="username"
+                      placeholder="edit your name"
                       defaultValue={optimisticUsername || currentUser?.username}
                       disabled={!isEditing}
                     />

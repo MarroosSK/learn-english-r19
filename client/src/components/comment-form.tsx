@@ -68,7 +68,7 @@ const CommentForm = ({ article, refetchArticle }: CommentFormI) => {
 
           <button
             type="submit"
-            className="self-end"
+            className="self-end bg-stone-800 p-2 rounded-md hover:bg-stone-300 text-white hover:text-stone-800 transition-all ease-in-out"
             data-id="comment-submit-button"
           >
             {isPending ? "Sending..." : "Send"}
