@@ -35,6 +35,7 @@ const CommentForm = ({ article, refetchArticle }: CommentFormI) => {
         await refetchArticle();
         return {};
       } catch (error) {
+        console.log(state);
         return { error: "Failed to post comment. Please try again." };
       }
     },
