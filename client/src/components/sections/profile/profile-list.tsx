@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X, EditIcon, Save, Trash, Loader2 } from "lucide-react";
+import { X, EditIcon, Trash } from "lucide-react";
 import { editWord, handleDelete } from "@/api/api-calls";
 import { CurrentUserI, WordI } from "@/types/types";
 import { toast } from "sonner";
@@ -17,7 +17,7 @@ const ProfileList = ({
   const [editedMeaning, setEditedMeaning] = useState<string>("");
   const [optimisticMeaning, setOptimisticMeaning] = useState<string>("");
 
-  const [state, formAction, isPending] = useActionState(
+  const [state, formAction] = useActionState(
     async (prevState: { error?: string }, formData: FormData) => {
       const wordId = formData.get("wordId") as string;
       const word = formData.get("word") as string;
@@ -76,7 +76,7 @@ const ProfileList = ({
         <thead>
           <tr className="bg-gray-200">
             <th className="border px-4 py-2">Word</th>
-            <th className="border px-4 py-2">Meaning</th>
+            <th className="border px-4 py-2">Meaning (in your language)</th>
             <th className="border px-4 py-2">Actions</th>
           </tr>
         </thead>
@@ -108,19 +108,6 @@ const ProfileList = ({
                 <td className="border px-4 py-2 flex justify-center gap-2">
                   {editMode === word.id ? (
                     <>
-                      <button
-                        type="submit"
-                        formAction={formAction}
-                        className="bg-green-500 hover:bg-green-300 text-white p-2 cursor-pointer"
-                        disabled={isPending}
-                      >
-                        {isPending ? (
-                          <Loader2 className="animate-spin" size={16} />
-                        ) : (
-                          <Save size={16} />
-                        )}
-                      </button>
-
                       <button
                         onClick={() => setEditMode(null)}
                         className="bg-stone-500 hover:bg-stone-300 text-white p-2 cursor-pointer"
