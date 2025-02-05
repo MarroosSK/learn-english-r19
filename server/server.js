@@ -13,7 +13,7 @@ app.use(
       "http://localhost:5173",
       "http://localhost:3001",
       "http://localhost:3002",
-      "learn-english-r19-server.vercel.app",
+      "https://learn-english-r19-server.vercel.app",
     ],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
